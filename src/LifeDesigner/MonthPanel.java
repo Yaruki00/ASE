@@ -9,7 +9,7 @@ import java.util.Calendar;
 public class MonthPanel extends JPanel implements ActionListener {
 	GUI gui;
 	Calendar cal;
-	int year, month;
+	int year, month, begin, length;
 	GridBagLayout gbl;
 	GridBagConstraints gbc;
 	YearMonthPanel ymp;
@@ -32,6 +32,9 @@ public class MonthPanel extends JPanel implements ActionListener {
 		cal = Calendar.getInstance();
 		year = cal.get(Calendar.YEAR);
 		month = cal.get(Calendar.MONTH) + 1;
+		cal.set(year, month-1, 1);
+		begin = cal.get(Calendar.DAY_OF_WEEK) - 1;
+		length = cal.getActualMaximum(cal.DATE);
 		
 		ymp = new YearMonthPanel(this, year, month);
 		addComponent(gbl, gbc, ymp, 0, 0, 5, 1);
@@ -39,7 +42,7 @@ public class MonthPanel extends JPanel implements ActionListener {
 		lp = new LabelPanel();
 		addComponent(gbl, gbc, lp, 5, 0, 1, 1);
 		
-		cp = new CalendarPanel(this);
+		cp = new CalendarPanel(this, begin, length);
 		addComponent(gbl, gbc, cp, 0, 1, 5, 5);
 		
 		plp = new ProjectListPanel(this);
@@ -48,7 +51,7 @@ public class MonthPanel extends JPanel implements ActionListener {
 		dp = new DetailPanel();
 		addComponent(gbl, gbc, dp, 0, 6, 5, 1);
 		
-		b = new JButton("CHANGE!");
+		b = new JButton("change!");
 		b.setActionCommand("a");
 		b.addActionListener(this);
 		addComponent(gbl, gbc, b, 5, 6, 1, 1);
@@ -135,14 +138,36 @@ class LabelPanel extends JPanel {
 class CalendarPanel extends JPanel implements ActionListener {
 	MonthPanel mp;
 	CalendarCell[] cell;
-	CalendarPanel(MonthPanel mp) {
+	JLabel[] dayofweek;
+	CalendarPanel(MonthPanel mp, int begin, int length) {
+		int i;
 		this.mp = mp;
-		setLayout(new GridLayout(5,7));
+		setLayout(new GridLayout(6,7));
+		dayofweek = new JLabel[7];
+		for(i=0; i<7; i++) {
+			dayofweek[i] = new JLabel();
+			add(dayofweek[i]);
+		}
+		dayofweek[0].setText("Sun");
+		dayofweek[1].setText("Mon");
+		dayofweek[2].setText("Tue");
+		dayofweek[3].setText("Wed");
+		dayofweek[4].setText("Thu");
+		dayofweek[5].setText("Fri");
+		dayofweek[6].setText("Sat");
 		cell = new CalendarCell[35];
-		for(int i=0; i<35; i++) {
+		for(i=0; i<35; i++) {
 			cell[i] = new CalendarCell();
-			cell[i].setDate(i);
 			add(cell[i]);
+		}
+		for(i=0; i<begin; i++) {
+			cell[i].setVisible(false);
+		}
+		for(i=begin; i<begin+length; i++) {
+			cell[i].setDate(i-begin+1);
+		}
+		for(i=begin+length; i<35; i++) {
+			cell[i].setVisible(false);
 		}
 	}
 	public void setMonth(int begin, int length) {
