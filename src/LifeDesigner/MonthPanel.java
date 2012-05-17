@@ -8,6 +8,8 @@ import java.util.Calendar;
 
 public class MonthPanel extends JPanel implements ActionListener {
 	GUI gui;
+	Calendar cal;
+	int year, month;
 	GridBagLayout gbl;
 	GridBagConstraints gbc;
 	YearMonthPanel ymp;
@@ -27,7 +29,11 @@ public class MonthPanel extends JPanel implements ActionListener {
         gbc.weightx = 100.0;
 		gbc.weighty = 100.0;
 		
-		ymp = new YearMonthPanel(this);
+		cal = Calendar.getInstance();
+		year = cal.get(Calendar.YEAR);
+		month = cal.get(Calendar.MONTH) + 1;
+		
+		ymp = new YearMonthPanel(this, year, month);
 		addComponent(gbl, gbc, ymp, 0, 0, 5, 1);
 		
 		lp = new LabelPanel();
@@ -72,10 +78,11 @@ class YearMonthPanel extends JPanel implements ActionListener {
 	MonthPanel mp;
 	JLabel year_month;
 	JButton nextMonth, previousMonth;
-	Calendar cal;
-	int nowYear, nowMonth;
-	YearMonthPanel(MonthPanel mp) {
+	int year, month;
+	YearMonthPanel(MonthPanel mp, int year, int month) {
 		this.mp = mp;
+		this.year = year;
+		this.month = month;
 		setLayout(new GridLayout(1,3));
 		
 		previousMonth = new JButton("<-");
@@ -83,11 +90,8 @@ class YearMonthPanel extends JPanel implements ActionListener {
 		previousMonth.addActionListener(this);
 		add(previousMonth);
 		
-		cal = Calendar.getInstance();
-		nowYear = cal.get(Calendar.YEAR);
-		nowMonth = cal.get(Calendar.MONTH);
 		year_month = new JLabel();
-		year_month.setText("<html>" + nowYear + "<br>" + nowMonth + "</html>");
+		year_month.setText("<html>" + year + "<br>" + month + "</html>");
 		add(year_month);
 		
 		nextMonth = new JButton("->");
@@ -96,9 +100,27 @@ class YearMonthPanel extends JPanel implements ActionListener {
 		add(nextMonth);
 		
 	}
+	public void changeMonth(int month) {
+		if(month == 0) {
+			this.year -= 1;
+			this.month = 12;
+		} else if(month == 13) {
+			this.year += 1;
+			this.month = 1;
+		} else {
+			this.month = month;
+		}
+		year_month.setText("<html>" + this.year + "<br>" + this.month + "</html>");
+	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		
+		String cmd = e.getActionCommand();
+		if(cmd.equals("previous")) {
+			changeMonth(month-1);
+		} else if(cmd.equals("next")) {
+			changeMonth(month+1);
+		} else {
+		}
 	}
 }
 
@@ -112,21 +134,15 @@ class LabelPanel extends JPanel {
 
 class CalendarPanel extends JPanel implements ActionListener {
 	MonthPanel mp;
-	JPanel[] cell;
-	JButton[] date;
+	CalendarCell[] cell;
 	CalendarPanel(MonthPanel mp) {
 		this.mp = mp;
 		setLayout(new GridLayout(5,7));
-		cell = new JPanel[35];
-		date = new JButton[35];
+		cell = new CalendarCell[35];
 		for(int i=0; i<35; i++) {
-			cell[i] = new JPanel();
-			cell[i].setLayout(new BoxLayout(cell[i], BoxLayout.Y_AXIS));
+			cell[i] = new CalendarCell();
+			cell[i].setDate(i);
 			add(cell[i]);
-			date[i] = new JButton(Integer.toString(i));
-			date[i].addActionListener(this);
-			date[i].setActionCommand(Integer.toString(i));
-			cell[i].add(date[i]);
 		}
 	}
 	public void setMonth(int begin, int length) {
@@ -134,50 +150,22 @@ class CalendarPanel extends JPanel implements ActionListener {
 	}
 	@Override
 	public void actionPerformed(ActionEvent ae) {
-		switch (Integer.valueOf(ae.getActionCommand())) {
-		case 0:
-		case 1:
-		case 2:
-		case 3:
-		case 4:
-		case 5:
-		case 6:
-		case 7:
-		case 8:
-		case 9:
-		case 10:
-		case 11:
-		case 12:
-		case 13:
-		case 14:
-		case 15:
-		case 16:
-		case 17:
-		case 18:
-		case 19:
-		case 20:
-		case 21:
-		case 22:
-		case 23:
-		case 24:
-		case 25:
-		case 26:
-		case 27:
-		case 28:
-		case 29:
-		case 30:
-		case 31:
-		case 32:
-		case 33:
-		case 34:
-		}
 	}
 }
 
-class Cell extends JPanel {
+class CalendarCell extends JPanel {
 	ArrayList<JButton> b;
-	Cell() {
+	CalendarCell() {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		b = new ArrayList<JButton>();
+		b.add(new JButton());
+		add(b.get(0));
+	}
+	public void setDate(int date) {
+		b.get(0).setText(Integer.toString(date));
+	}
+	public void addEvent(String title) {
+		b.add(new JButton(title));
 	}
 }
 
