@@ -34,15 +34,17 @@ public class MonthPanel extends JPanel implements ActionListener {
 		month = cal.get(Calendar.MONTH) + 1;
 		cal.set(year, month-1, 1);
 		begin = cal.get(Calendar.DAY_OF_WEEK) - 1;
-		length = cal.getActualMaximum(cal.DATE);
+		length = cal.getActualMaximum(Calendar.DATE);
 		
-		ymp = new YearMonthPanel(this, year, month);
+		ymp = new YearMonthPanel(this);
+		ymp.setYearMonth(year, month);
 		addComponent(gbl, gbc, ymp, 0, 0, 5, 1);
 		
 		lp = new LabelPanel();
 		addComponent(gbl, gbc, lp, 5, 0, 1, 1);
 		
-		cp = new CalendarPanel(this, begin, length);
+		cp = new CalendarPanel(this);
+		cp.setMonth(begin, length);
 		addComponent(gbl, gbc, cp, 0, 1, 5, 5);
 		
 		plp = new ProjectListPanel(this);
@@ -65,6 +67,29 @@ public class MonthPanel extends JPanel implements ActionListener {
         gbl.setConstraints(c, gbc);
         add(c);
     }
+	public void setYearMonth(String operation) {
+		if(operation.equals("previous")) {
+			if(month == 1) {
+				year -= 1;
+				month = 12;
+			} else {
+				month -= 1;
+			}
+		} else if(operation.equals("next")) {
+			if(month == 12) {
+				year += 1;
+				month = 1;
+			} else {
+				month += 1;
+			}
+		} else {
+		}
+		ymp.setYearMonth(year, month);
+		cal.set(year, month-1, 1);
+		begin = cal.get(Calendar.DAY_OF_WEEK) - 1;
+		length = cal.getActualMaximum(Calendar.DATE);
+		cp.setMonth(begin, length);
+	}
 	public void setDetail(String text) {
 		dp.setDetail(text);
 	}
@@ -81,11 +106,8 @@ class YearMonthPanel extends JPanel implements ActionListener {
 	MonthPanel mp;
 	JLabel year_month;
 	JButton nextMonth, previousMonth;
-	int year, month;
-	YearMonthPanel(MonthPanel mp, int year, int month) {
+	YearMonthPanel(MonthPanel mp) {
 		this.mp = mp;
-		this.year = year;
-		this.month = month;
 		setLayout(new GridLayout(1,3));
 		
 		previousMonth = new JButton("<-");
@@ -94,7 +116,6 @@ class YearMonthPanel extends JPanel implements ActionListener {
 		add(previousMonth);
 		
 		year_month = new JLabel();
-		year_month.setText("<html>" + year + "<br>" + month + "</html>");
 		add(year_month);
 		
 		nextMonth = new JButton("->");
@@ -103,25 +124,16 @@ class YearMonthPanel extends JPanel implements ActionListener {
 		add(nextMonth);
 		
 	}
-	public void changeMonth(int month) {
-		if(month == 0) {
-			this.year -= 1;
-			this.month = 12;
-		} else if(month == 13) {
-			this.year += 1;
-			this.month = 1;
-		} else {
-			this.month = month;
-		}
-		year_month.setText("<html>" + this.year + "<br>" + this.month + "</html>");
+	public void setYearMonth(int year, int month) {
+		year_month.setText("<html>" + year + "<br>" + month + "</html>");
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String cmd = e.getActionCommand();
 		if(cmd.equals("previous")) {
-			changeMonth(month-1);
+			mp.setYearMonth("previous");
 		} else if(cmd.equals("next")) {
-			changeMonth(month+1);
+			mp.setYearMonth("next");
 		} else {
 		}
 	}
@@ -139,10 +151,10 @@ class CalendarPanel extends JPanel implements ActionListener {
 	MonthPanel mp;
 	CalendarCell[] cell;
 	JLabel[] dayofweek;
-	CalendarPanel(MonthPanel mp, int begin, int length) {
+	CalendarPanel(MonthPanel mp) {
 		int i;
 		this.mp = mp;
-		setLayout(new GridLayout(6,7));
+		setLayout(new GridLayout(7,7));
 		dayofweek = new JLabel[7];
 		for(i=0; i<7; i++) {
 			dayofweek[i] = new JLabel();
@@ -155,23 +167,24 @@ class CalendarPanel extends JPanel implements ActionListener {
 		dayofweek[4].setText("Thu");
 		dayofweek[5].setText("Fri");
 		dayofweek[6].setText("Sat");
-		cell = new CalendarCell[35];
-		for(i=0; i<35; i++) {
+		cell = new CalendarCell[42];
+		for(i=0; i<42; i++) {
 			cell[i] = new CalendarCell();
 			add(cell[i]);
 		}
+	}
+	public void setMonth(int begin, int length) {
+		int i;
 		for(i=0; i<begin; i++) {
 			cell[i].setVisible(false);
 		}
 		for(i=begin; i<begin+length; i++) {
 			cell[i].setDate(i-begin+1);
+			cell[i].setVisible(true);
 		}
-		for(i=begin+length; i<35; i++) {
+		for(i=begin+length; i<42; i++) {
 			cell[i].setVisible(false);
 		}
-	}
-	public void setMonth(int begin, int length) {
-		
 	}
 	@Override
 	public void actionPerformed(ActionEvent ae) {
