@@ -1,6 +1,7 @@
 package LifeDesigner;
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -90,9 +91,13 @@ public class MonthPanel extends JPanel implements ActionListener {
 		length = cal.getActualMaximum(Calendar.DATE);
 		cp.setMonth(begin, length);
 	}
-	public void setDetail(String text) {
-		dp.setDetail(text);
+	public void addEvent(int date) {
+		dp.setDetail(this.year, this.month, date);
 	}
+	/*
+	public void addEvent(int date, String title) {
+		dp.setDetail(this.year, this.month, date, title, detali);
+	}*/
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String cmd = e.getActionCommand();
@@ -147,7 +152,7 @@ class LabelPanel extends JPanel {
 	}
 }
 
-class CalendarPanel extends JPanel implements ActionListener {
+class CalendarPanel extends JPanel{
 	MonthPanel mp;
 	CalendarCell[] cell;
 	JLabel[] dayofweek;
@@ -169,7 +174,7 @@ class CalendarPanel extends JPanel implements ActionListener {
 		dayofweek[6].setText("Sat");
 		cell = new CalendarCell[42];
 		for(i=0; i<42; i++) {
-			cell[i] = new CalendarCell();
+			cell[i] = new CalendarCell(mp);
 			add(cell[i]);
 		}
 	}
@@ -186,24 +191,40 @@ class CalendarPanel extends JPanel implements ActionListener {
 			cell[i].setVisible(false);
 		}
 	}
-	@Override
-	public void actionPerformed(ActionEvent ae) {
-	}
 }
 
-class CalendarCell extends JPanel {
+class CalendarCell extends JPanel implements ActionListener {
+	MonthPanel mp;
 	ArrayList<JButton> b;
-	CalendarCell() {
+	CalendarCell(MonthPanel mp) {
+		this.mp = mp;
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		b = new ArrayList<JButton>();
 		b.add(new JButton());
 		add(b.get(0));
 	}
 	public void setDate(int date) {
-		b.get(0).setText(Integer.toString(date));
+		String d = Integer.toString(date);
+		b.get(0).setText(d);
+		b.get(0).setActionCommand(d);
+		b.get(0).addActionListener(this);
 	}
 	public void addEvent(String title) {
 		b.add(new JButton(title));
+		b.get(b.size()).setActionCommand(title);
+		b.get(b.size()).addActionListener(this);
+	}
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		int date;
+		String cmd = e.getActionCommand();
+		try {
+			date = Integer.valueOf(cmd);
+			mp.addEvent(date);
+		} catch (NumberFormatException nfe) {
+			date = Integer.valueOf(b.get(0).getText());
+			//mp.addEvent(date, cmd);
+		}
 	}
 }
 
@@ -226,13 +247,66 @@ class ProjectListPanel extends JPanel implements ActionListener {
 }
 
 class DetailPanel extends JPanel implements ActionListener {
-	JLabel detail;
+	GridBagLayout gbl;
+	GridBagConstraints gbc;
+	JLabel yearLabel, monthLabel, dateLabel, titleLabel, detailLabel;
+	JTextField yearText, monthText, dateText, title;
+	JTextArea detail;
+	JButton b1, b2;
 	DetailPanel() {
-		detail = new JLabel("detail");
-		add(detail);
+		gbl = new GridBagLayout();
+		setLayout(gbl);
+		gbc = new GridBagConstraints();
+        //gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 100.0;
+		gbc.weighty = 100.0;
+
+		yearLabel = new JLabel("year:");
+		addComponent(gbl, gbc, yearLabel, 0, 0, 1, 1);
+		yearText = new JTextField(4);
+		addComponent(gbl, gbc, yearText, 1, 0, 1, 1);
+		
+		monthLabel = new JLabel("month:");
+		addComponent(gbl, gbc, monthLabel, 2, 0, 1, 1);
+		monthText  = new JTextField(2);
+		addComponent(gbl, gbc, monthText, 3, 0, 1, 1);
+		
+		dateLabel = new JLabel("date:");
+		addComponent(gbl, gbc, dateLabel, 4, 0, 1, 1);
+		dateText = new JTextField(2);
+		addComponent(gbl, gbc, dateText, 5, 0, 1, 1);
+		
+		titleLabel = new JLabel("title:");
+		addComponent(gbl, gbc, titleLabel, 0, 1, 1, 1);
+		title = new JTextField(30);
+		addComponent(gbl, gbc, title, 1, 1, 5, 1);
+		
+		detailLabel = new JLabel("detail:");
+		addComponent(gbl, gbc, detailLabel, 0, 2, 1, 3);
+		detail = new JTextArea(3, 30);
+		addComponent(gbl, gbc, detail, 1, 2, 5, 3);
+		
+		b1 = new JButton("add");
+		addComponent(gbl, gbc, b1, 3, 5, 1, 1);
+		
+		b2 = new JButton("reset");
+		addComponent(gbl, gbc, b2, 4, 5, 1, 1);
 	}
-	public void setDetail(String text) {
-		detail.setText(text);
+	void addComponent(GridBagLayout gbl,GridBagConstraints gbc, Component c, int x, int y, int w, int h) {
+        gbc.gridx = x;
+        gbc.gridy = y;
+        gbc.gridwidth = w;
+        gbc.gridheight = h;
+        gbl.setConstraints(c, gbc);
+        add(c);
+    }
+	public void setDetail(int year, int month, int date) {
+		yearText.setText(Integer.toString(year));
+		monthText.setText(Integer.toString(month));
+		dateText.setText(Integer.toString(date));
+	}
+	public void setDetail(int year, int month, int date, String title, String detail) {
+		this.detail.setText(detail);
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
