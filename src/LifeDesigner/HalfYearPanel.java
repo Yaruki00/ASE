@@ -11,14 +11,16 @@ import java.util.Calendar;
 
 public class HalfYearPanel extends JPanel implements ActionListener {
 	GUI gui;
+	EventManager em;
 	GridBagLayout gbl;
 	GridBagConstraints gbc;
 	YearMonthPanel ymp;
 	TermPanel tp;
 	VisibleProjectPanel vpp;
 	JButton b;
-	HalfYearPanel(GUI gui) {
+	HalfYearPanel(GUI gui, EventManager em) {
 		this.gui = gui;
+		this.em = em;
 		
 		gbl = new GridBagLayout();
 		setLayout(gbl);

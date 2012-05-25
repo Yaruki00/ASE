@@ -9,6 +9,7 @@ import java.util.Calendar;
 
 public class MonthPanel extends JPanel implements ActionListener {
 	GUI gui;
+	EventManager em;
 	Calendar cal;
 	int year, month, begin, length;
 	GridBagLayout gbl;
@@ -20,8 +21,9 @@ public class MonthPanel extends JPanel implements ActionListener {
 	DetailPanel dp;
 	JLabel l;
 	JButton b;
-	MonthPanel(GUI gui) {
+	MonthPanel(GUI gui, EventManager em) {
 		this.gui = gui;
+		this.em = em;
 		
 		gbl = new GridBagLayout();
 		setLayout(gbl);
@@ -51,7 +53,7 @@ public class MonthPanel extends JPanel implements ActionListener {
 		plp = new ProjectListPanel(this);
 		addComponent(gbl, gbc, plp, 5, 1, 1, 5);
 		
-		dp = new DetailPanel();
+		dp = new DetailPanel(this);
 		addComponent(gbl, gbc, dp, 0, 6, 5, 1);
 		
 		b = new JButton("change!");
@@ -91,13 +93,15 @@ public class MonthPanel extends JPanel implements ActionListener {
 		length = cal.getActualMaximum(Calendar.DATE);
 		cp.setMonth(begin, length);
 	}
-	public void addEvent(int date) {
+	public void addEvent(int year, int month, int date, String title, String detail) {
+		//id = em.
+	}
+	public void setDetail(int date) {
 		dp.setDetail(this.year, this.month, date);
 	}
-	/*
-	public void addEvent(int date, String title) {
-		dp.setDetail(this.year, this.month, date, title, detali);
-	}*/
+	public void setDetail(int date, String title, String detail) {
+		dp.setDetail(this.year, this.month, date, title, detail);
+	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String cmd = e.getActionCommand();
@@ -220,7 +224,7 @@ class CalendarCell extends JPanel implements ActionListener {
 		String cmd = e.getActionCommand();
 		try {
 			date = Integer.valueOf(cmd);
-			mp.addEvent(date);
+			mp.setDetail(date);
 		} catch (NumberFormatException nfe) {
 			date = Integer.valueOf(b.get(0).getText());
 			//mp.addEvent(date, cmd);
@@ -247,13 +251,15 @@ class ProjectListPanel extends JPanel implements ActionListener {
 }
 
 class DetailPanel extends JPanel implements ActionListener {
+	MonthPanel mp;
 	GridBagLayout gbl;
 	GridBagConstraints gbc;
 	JLabel yearLabel, monthLabel, dateLabel, titleLabel, detailLabel;
-	JTextField yearText, monthText, dateText, title;
-	JTextArea detail;
+	JTextField yearText, monthText, dateText, titleText;
+	JTextArea detailText;
 	JButton b1, b2;
-	DetailPanel() {
+	DetailPanel(MonthPanel mp) {
+		this.mp = mp;
 		gbl = new GridBagLayout();
 		setLayout(gbl);
 		gbc = new GridBagConstraints();
@@ -278,18 +284,22 @@ class DetailPanel extends JPanel implements ActionListener {
 		
 		titleLabel = new JLabel("title:");
 		addComponent(gbl, gbc, titleLabel, 0, 1, 1, 1);
-		title = new JTextField(30);
-		addComponent(gbl, gbc, title, 1, 1, 5, 1);
+		titleText = new JTextField(30);
+		addComponent(gbl, gbc, titleText, 1, 1, 5, 1);
 		
 		detailLabel = new JLabel("detail:");
 		addComponent(gbl, gbc, detailLabel, 0, 2, 1, 3);
-		detail = new JTextArea(3, 30);
-		addComponent(gbl, gbc, detail, 1, 2, 5, 3);
+		detailText = new JTextArea(3, 30);
+		addComponent(gbl, gbc, detailText, 1, 2, 5, 3);
 		
 		b1 = new JButton("add");
+		b1.setActionCommand("add");
+		b1.addActionListener(this);
 		addComponent(gbl, gbc, b1, 3, 5, 1, 1);
 		
 		b2 = new JButton("reset");
+		b2.setActionCommand("reset");
+		b2.addActionListener(this);
 		addComponent(gbl, gbc, b2, 4, 5, 1, 1);
 	}
 	void addComponent(GridBagLayout gbl,GridBagConstraints gbc, Component c, int x, int y, int w, int h) {
@@ -306,10 +316,29 @@ class DetailPanel extends JPanel implements ActionListener {
 		dateText.setText(Integer.toString(date));
 	}
 	public void setDetail(int year, int month, int date, String title, String detail) {
-		this.detail.setText(detail);
+		yearText.setText(Integer.toString(year));
+		monthText.setText(Integer.toString(month));
+		dateText.setText(Integer.toString(date));
+		titleText.setText(title);
+		detailText.setText(detail);
+		b1.setText("change");
+		b1.setActionCommand("change");
+		b2.setText("delete");
+		b2.setActionCommand("delete");
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		
+		String cmd = e.getActionCommand();
+		if(cmd.equals("add")) {
+			mp.addEvent(Integer.valueOf(yearText.getText()), Integer.valueOf(monthText.getText()), Integer.valueOf(dateText.getText()), titleText.getText(), detailText.getText());
+		} else if(cmd.equals("reset")) {
+			titleText.setText("");
+			detailText.setText("");
+		} else if(cmd.equals("change")) {
+			
+		} else if(cmd.equals("delete")) {
+			
+		} else {
+		}
 	}
 }

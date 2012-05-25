@@ -7,12 +7,12 @@ public class GUI extends JPanel {
 	private MonthPanel mp;
 	private HalfYearPanel hyp;
 	private CardLayout cl;
-	GUI() {
+	GUI(EventManager em) {
 		super();
 		cl = new CardLayout();
 		setLayout(cl);
-		mp = new MonthPanel(this);
-		hyp = new HalfYearPanel(this);
+		mp = new MonthPanel(this, em);
+		hyp = new HalfYearPanel(this, em);
 		add("mp", mp);
 		add("hyp", hyp);
 	}
