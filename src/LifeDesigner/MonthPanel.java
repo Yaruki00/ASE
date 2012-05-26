@@ -41,25 +41,25 @@ public class MonthPanel extends JPanel implements ActionListener {
 		ymp = new YearMonthPanel(this);
 		ymp.setYearMonth(year, month);
 		addComponent(gbl, gbc, ymp, 0, 0, 5, 1);
-		
+		/*
 		lp = new LabelPanel();
 		addComponent(gbl, gbc, lp, 5, 0, 1, 1);
-		
+		*/
 		cp = new CalendarPanel(this);
 		cp.setMonth(begin, length);
 		addComponent(gbl, gbc, cp, 0, 1, 5, 5);
-		
+		/*
 		plp = new ProjectListPanel(this);
 		addComponent(gbl, gbc, plp, 5, 1, 1, 5);
-		
+		*/
 		dp = new DetailPanel(this);
 		addComponent(gbl, gbc, dp, 0, 6, 5, 1);
-		
+		/*
 		b = new JButton("change!");
 		b.setActionCommand("a");
 		b.addActionListener(this);
 		addComponent(gbl, gbc, b, 5, 6, 1, 1);
-		
+		*/
 	}
 	void addComponent(GridBagLayout gbl,GridBagConstraints gbc, Component c, int x, int y, int w, int h) {
         gbc.gridx = x;
@@ -93,15 +93,12 @@ public class MonthPanel extends JPanel implements ActionListener {
 		cp.setMonth(begin, length);
 	}
 	public void addEvent(int year, int month, int date, String title, String detail) {
-		int id = em.addEvent(year, month, date, title, detail);
-		cp.addEventButton(id, date, title);
-		b.setText("addEvent");
+		cp.addEventButton(em.addEvent(year, month, date, title, detail));
 	}
 	public void setDetail(int date) {
 		dp.setDetail(this.year, this.month, date);
 	}
-	public void setDetail(int date, String title) {
-		String detail = em.getEventDetail(this.year, this.month, date);
+	public void setDetail(int date, String title, String detail) {
 		dp.setDetail(this.year, this.month, date, title, detail);
 	}
 	@Override
@@ -199,14 +196,15 @@ class CalendarPanel extends JPanel{
 			cell[i].setVisible(false);
 		}
 	}
-	public void addEventButton(int id, int date, String title) {
-		cell[begin+date-1].addEventButton(id, title);
+	public void addEventButton(Event e) {
+		cell[begin+e.getDate()-1].addEventButton(e);
 	}
 }
 
 class CalendarCell extends JPanel implements ActionListener {
 	MonthPanel mp;
 	ArrayList<JButton> b;
+	ArrayList<Event> el;
 	int size;
 	CalendarCell(MonthPanel mp) {
 		this.mp = mp;
@@ -215,6 +213,7 @@ class CalendarCell extends JPanel implements ActionListener {
 		b.add(new JButton());
 		add(b.get(0));
 		size = 1;
+		el = new ArrayList<Event>();
 	}
 	public void setDate(int date) {
 		String d = Integer.toString(date);
@@ -222,11 +221,13 @@ class CalendarCell extends JPanel implements ActionListener {
 		b.get(0).setActionCommand(d);
 		b.get(0).addActionListener(this);
 	}
-	public void addEventButton(int id, String title) {
-		b.add(new JButton(title));
-		b.get(size).setActionCommand(title);
+	public void addEventButton(Event e) {
+		el.add(e);
+		b.add(new JButton(e.getTitle()));
+		b.get(size).setActionCommand(e.getTitle());
 		b.get(size).addActionListener(this);
 		add(b.get(size));
+		revalidate();
 		size += 1;
 	}
 	@Override
@@ -238,7 +239,11 @@ class CalendarCell extends JPanel implements ActionListener {
 			mp.setDetail(date);
 		} catch (NumberFormatException nfe) {
 			date = Integer.valueOf(b.get(0).getText());
-			mp.setDetail(date, cmd);
+			int i;
+			for(i=0; i<size-1; i++) {
+				if(el.get(i).getTitle() == cmd) break;
+			}
+			mp.setDetail(date, cmd, el.get(i).getDetail());
 		}
 	}
 }
@@ -327,6 +332,10 @@ class DetailPanel extends JPanel implements ActionListener {
 		dateText.setText(Integer.toString(date));
 		titleText.setText("");
 		detailText.setText("");
+		b1.setText("add");
+		b1.setActionCommand("add");
+		b2.setText("reset");
+		b2.setActionCommand("reset");
 	}
 	public void setDetail(int year, int month, int date, String title, String detail) {
 		yearText.setText(Integer.toString(year));

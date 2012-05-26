@@ -3,32 +3,31 @@ package LifeDesigner;
 import java.util.ArrayList;
 
 public class EventManager {
-	ArrayList<EventList> ell;
+	ArrayList<EventList> alel;
 	int size;
 	EventManager() {
-		ell = new ArrayList<EventList>(100);
+		alel = new ArrayList<EventList>(100);
 		size = 0;
 	}
-	public int addEvent(int year, int month, int date, String title, String detail) {
-		int id = year * 100 + month, index;
-		if((index = fetch(id)) == -1) {
-			ell.add(size, new EventList(id));
-			return ell.get(size++).addEvent(date, title, detail);
+	public Event addEvent(int year, int month, int date, String title, String detail) {
+		int id = year * 100 + month;
+		EventList el;
+		if((el = fetch(id)) == null) {
+			alel.add(size, new EventList(id));
+			size += 1;
+			return alel.get(size-1).addEvent(date, title, detail);
 		} else {
-			return ell.get(index).addEvent(date, title, detail);
+			return el.addEvent(date, title, detail);
 		}
 	}
-	int fetch(int id) {
+	EventList fetch(int id) {
 		int index;
 		for(index=0; index<size; index++) {
-			if(id == ell.get(index).getId()) {
-				return index;
+			if(id == alel.get(index).getId()) {
+				return alel.get(index);
 			}
 		}
-		return -1;
-	}
-	String getEventDetail(int year, int month, int date) {
-		return ell.get(fetch(year * 100 + month)).getEventDetail(date);
+		return null;
 	}
 }
 
@@ -42,19 +41,16 @@ class EventList extends ArrayList<Event> {
 	public int getId() {
 		return id;
 	}
-	public String getEventDetail(int date) {
-		return get(fetch(date)).getDetail();
-	}
-	int fetch(int date) {
+	Event fetch(int eventId) {
 		int index;
 		for(index=0; index<size; index++) {
-			if(date == get(index).getDate()) {
-				return index;
+			if(eventId == get(index).getId()) {
+				return get(index);
 			}
 		}
-		return -1;
+		return null;
 	}
-	public int addEvent(int date, String title, String detail) {
+	public Event addEvent(int date, String title, String detail) {
 		int i;
 		for(i=0; i<size ; i++) {
 			if(date < get(i).getDate()) {
@@ -62,8 +58,9 @@ class EventList extends ArrayList<Event> {
 			}
 		}
 		add(i, new Event(eventId, date, title, detail));
-		size = eventId += 1;
-		return eventId;
+		size += 1;
+		eventId += 1;
+		return get(size-1);
 	}
 }
 
