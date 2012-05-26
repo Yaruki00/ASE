@@ -20,14 +20,17 @@ public class MonthPanel extends JPanel implements ActionListener {
 	ProjectListPanel plp;
 	DetailPanel dp;
 	JButton b;
+	JLabel[] space;
 	MonthPanel(GUI gui, EventManager em) {
 		this.gui = gui;
 		this.em = em;
 		
+		int i;
+		space = new JLabel[50];
+		for(i=0; i<50; i++) space[i] = new JLabel("     ");
 		gbl = new GridBagLayout();
 		setLayout(gbl);
 		gbc = new GridBagConstraints();
-        //gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 100.0;
 		gbc.weighty = 100.0;
 		
@@ -38,22 +41,33 @@ public class MonthPanel extends JPanel implements ActionListener {
 		begin = cal.get(Calendar.DAY_OF_WEEK) - 1;
 		length = cal.getActualMaximum(Calendar.DATE);
 		
+		addComponent(gbl, gbc, space[0], 0, 0, 1, 1);
+		addComponent(gbl, gbc, space[1], 1, 0, 1, 1);
+		addComponent(gbl, gbc, space[2], 2, 0, 1, 1);
+		addComponent(gbl, gbc, space[3], 6, 0, 1, 1);
+		addComponent(gbl, gbc, space[4], 7, 0, 1, 1);
+		addComponent(gbl, gbc, space[5], 8, 0, 1, 1);
+		for(i=6; i<28; i++) addComponent(gbl, gbc, space[i], 0, i-6, 1, 1);
+		for(i=28; i<50; i++) addComponent(gbl, gbc, space[i], 8, i-28, 1, 1);
+			
 		ymp = new YearMonthPanel(this);
 		ymp.setYearMonth(year, month);
-		addComponent(gbl, gbc, ymp, 0, 0, 5, 1);
+		addComponent(gbl, gbc, ymp, 3, 0, 3, 1);
 		/*
 		lp = new LabelPanel();
 		addComponent(gbl, gbc, lp, 5, 0, 1, 1);
 		*/
 		cp = new CalendarPanel(this);
 		cp.setMonth(begin, length);
-		addComponent(gbl, gbc, cp, 0, 1, 5, 5);
+		gbc.fill = GridBagConstraints.BOTH;
+		addComponent(gbl, gbc, cp, 1, 1, 7, 18);
 		/*
 		plp = new ProjectListPanel(this);
 		addComponent(gbl, gbc, plp, 5, 1, 1, 5);
 		*/
 		dp = new DetailPanel(this);
-		addComponent(gbl, gbc, dp, 0, 6, 5, 1);
+		gbc.fill = GridBagConstraints.NONE;
+		addComponent(gbl, gbc, dp, 1, 19, 7, 3);
 		/*
 		b = new JButton("change!");
 		b.setActionCommand("a");
@@ -141,7 +155,7 @@ class YearMonthPanel extends JPanel implements ActionListener {
 		previousMonth.addActionListener(this);
 		add(previousMonth);
 		
-		year_month = new JLabel();
+		year_month = new JLabel("", SwingConstants.CENTER);
 		add(year_month);
 		
 		nextMonth = new JButton("->");
@@ -184,7 +198,9 @@ class CalendarPanel extends JPanel{
 		setLayout(new GridLayout(7,7));
 		dayofweek = new JLabel[7];
 		for(i=0; i<7; i++) {
-			dayofweek[i] = new JLabel();
+			dayofweek[i] = new JLabel("", SwingConstants.CENTER);
+			dayofweek[i].setOpaque(true);
+			dayofweek[i].setBackground(Color.white);
 			add(dayofweek[i]);
 		}
 		dayofweek[0].setText("Sun");
@@ -197,6 +213,8 @@ class CalendarPanel extends JPanel{
 		cell = new CalendarCell[42];
 		for(i=0; i<42; i++) {
 			cell[i] = new CalendarCell(mp);
+			if(i%2 == 0) cell[i].setBackground(Color.LIGHT_GRAY);
+			else         cell[i].setBackground(Color.DARK_GRAY);
 			add(cell[i]);
 		}
 	}
@@ -245,12 +263,14 @@ class CalendarCell extends JPanel implements ActionListener {
 		b.get(0).setText(d);
 		b.get(0).setActionCommand(d);
 		b.get(0).addActionListener(this);
+		b.get(0).setAlignmentX(CENTER_ALIGNMENT);
 	}
 	public void addEventButton(Event e) {
 		el.add(e);
 		b.add(new JButton(e.getTitle()));
 		b.get(size).setActionCommand(e.getTitle());
 		b.get(size).addActionListener(this);
+		b.get(size).setAlignmentX(CENTER_ALIGNMENT);
 		add(b.get(size));
 		revalidate();
 		size += 1;
@@ -326,7 +346,6 @@ class DetailPanel extends JPanel implements ActionListener {
 		gbl = new GridBagLayout();
 		setLayout(gbl);
 		gbc = new GridBagConstraints();
-        //gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 100.0;
 		gbc.weighty = 100.0;
 
