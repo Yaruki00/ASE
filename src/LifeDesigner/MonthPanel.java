@@ -98,6 +98,9 @@ public class MonthPanel extends JPanel implements ActionListener {
 	public void changeEvent(int year, int month, int date, String title, String detail, int eventId) {
 		cp.changeEventButton(em.changeEvent(year, month, date, title, detail, eventId));
 	}
+	public void deleteEvent(int year, int month, int date, int eventId) {
+		cp.deleteEventButton(date, em.deleteEvent(year, month, date, eventId));
+	}
 	public void setDetail(int date) {
 		dp.setDetail(this.year, this.month, date);
 	}
@@ -205,6 +208,9 @@ class CalendarPanel extends JPanel{
 	public void changeEventButton(Event e) {
 		cell[begin+e.getDate()-1].changeEventButton(e);
 	}
+	public void deleteEventButton(int date, int eventId) {
+		cell[begin+date-1].deleteEventButton(eventId);
+	}
 }
 
 class CalendarCell extends JPanel implements ActionListener {
@@ -244,6 +250,17 @@ class CalendarCell extends JPanel implements ActionListener {
 		el.set(i, e);
 		b.get(i+1).setText(e.getTitle());
 		b.get(i+1).setActionCommand(e.getTitle());
+		revalidate();
+	}
+	public void deleteEventButton(int id) {
+		int i;
+		for(i=0; i<size-1; i++) {
+			if(el.get(i).getId() == id) break;
+		}
+		el.remove(i);
+		remove(b.get(i+1));
+		b.remove(i+1);
+		size -= 1;
 		revalidate();
 	}
 	@Override
@@ -377,7 +394,13 @@ class DetailPanel extends JPanel implements ActionListener {
 		} else if(cmd.equals("change")) {
 			mp.changeEvent(Integer.valueOf(yearText.getText()), Integer.valueOf(monthText.getText()), Integer.valueOf(dateText.getText()), titleText.getText(), detailText.getText(), eventId);
 		} else if(cmd.equals("delete")) {
-			
+			mp.deleteEvent(Integer.valueOf(yearText.getText()), Integer.valueOf(monthText.getText()), Integer.valueOf(dateText.getText()), eventId);
+			titleText.setText("");
+			detailText.setText("");
+			b1.setText("add");
+			b1.setActionCommand("add");
+			b2.setText("reset");
+			b2.setActionCommand("reset");
 		} else {
 		}
 	}

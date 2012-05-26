@@ -36,6 +36,12 @@ public class EventManager {
 		e.setDetail(detail);
 		return e;
 	}
+	public int deleteEvent(int year, int month, int date, int eventId) {
+		int id = year * 100 + month;
+		EventList el = fetch(id);
+		el.deleteEvent(eventId);
+		return eventId;
+	}
 }
 
 class EventList extends ArrayList<Event> {
@@ -48,11 +54,14 @@ class EventList extends ArrayList<Event> {
 	public int getId() {
 		return id;
 	}
+	public int getSize() {
+		return size;
+	}
 	Event fetch(int eventId) {
-		int index;
-		for(index=0; index<size; index++) {
-			if(eventId == get(index).getId()) {
-				return get(index);
+		int i;
+		for(i=0; i<size; i++) {
+			if(eventId == get(i).getId()) {
+				return get(i);
 			}
 		}
 		return null;
@@ -68,6 +77,11 @@ class EventList extends ArrayList<Event> {
 		size += 1;
 		eventId += 1;
 		return get(size-1);
+	}
+	public void deleteEvent(int eventId) {
+		Event e = fetch(eventId);
+		remove(e);
+		size -= 1;
 	}
 }
 
