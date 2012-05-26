@@ -70,6 +70,12 @@ public class MonthPanel extends JPanel implements ActionListener {
         add(c);
     }
 	public void setYearMonth(String operation) {
+		EventList el = em.fetch(year*100+month);
+		if(el != null) {
+			for(int i=0; i<el.getSize(); i++) {
+				cp.deleteEventButton(el.get(i).getDate(), el.get(i).getId());
+			}
+		}
 		if(operation.equals("previous")) {
 			if(month == 1) {
 				year -= 1;
@@ -91,6 +97,12 @@ public class MonthPanel extends JPanel implements ActionListener {
 		begin = cal.get(Calendar.DAY_OF_WEEK) - 1;
 		length = cal.getActualMaximum(Calendar.DATE);
 		cp.setMonth(begin, length);
+		el = em.fetch(year*100+month);
+		if(el != null) {
+			for(int i=0; i<el.getSize(); i++) {
+				cp.addEventButton(el.get(i));
+			}
+		}
 	}
 	public void addEvent(int year, int month, int date, String title, String detail) {
 		cp.addEventButton(em.addEvent(year, month, date, title, detail));
@@ -197,6 +209,7 @@ class CalendarPanel extends JPanel{
 		for(i=begin; i<begin+length; i++) {
 			cell[i].setDate(i-begin+1);
 			cell[i].setVisible(true);
+			
 		}
 		for(i=begin+length; i<42; i++) {
 			cell[i].setVisible(false);
@@ -388,6 +401,8 @@ class DetailPanel extends JPanel implements ActionListener {
 		String cmd = e.getActionCommand();
 		if(cmd.equals("add")) {
 			mp.addEvent(Integer.valueOf(yearText.getText()), Integer.valueOf(monthText.getText()), Integer.valueOf(dateText.getText()), titleText.getText(), detailText.getText());
+			titleText.setText("");
+			detailText.setText("");
 		} else if(cmd.equals("reset")) {
 			titleText.setText("");
 			detailText.setText("");
