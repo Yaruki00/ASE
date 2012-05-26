@@ -29,6 +29,13 @@ public class EventManager {
 		}
 		return null;
 	}
+	public Event changeEvent(int year, int month, int date, String title, String detail, int eventId) {
+		int id = year * 100 + month;
+		Event e = fetch(id).fetch(eventId);
+		e.setTitle(title);
+		e.setDetail(detail);
+		return e;
+	}
 }
 
 class EventList extends ArrayList<Event> {
@@ -84,5 +91,11 @@ class Event {
 	}
 	String getDetail() {
 		return detail;
+	}
+	void setTitle(String title) {
+		this.title = title;
+	}
+	void setDetail(String detail) {
+		this.detail = detail;
 	}
 }

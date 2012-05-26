@@ -95,11 +95,14 @@ public class MonthPanel extends JPanel implements ActionListener {
 	public void addEvent(int year, int month, int date, String title, String detail) {
 		cp.addEventButton(em.addEvent(year, month, date, title, detail));
 	}
+	public void changeEvent(int year, int month, int date, String title, String detail, int eventId) {
+		cp.changeEventButton(em.changeEvent(year, month, date, title, detail, eventId));
+	}
 	public void setDetail(int date) {
 		dp.setDetail(this.year, this.month, date);
 	}
-	public void setDetail(int date, String title, String detail) {
-		dp.setDetail(this.year, this.month, date, title, detail);
+	public void setDetail(int date, String title, String detail, int eventId) {
+		dp.setDetail(this.year, this.month, date, title, detail, eventId);
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -199,6 +202,9 @@ class CalendarPanel extends JPanel{
 	public void addEventButton(Event e) {
 		cell[begin+e.getDate()-1].addEventButton(e);
 	}
+	public void changeEventButton(Event e) {
+		cell[begin+e.getDate()-1].changeEventButton(e);
+	}
 }
 
 class CalendarCell extends JPanel implements ActionListener {
@@ -230,6 +236,16 @@ class CalendarCell extends JPanel implements ActionListener {
 		revalidate();
 		size += 1;
 	}
+	public void changeEventButton(Event e) {
+		int i;
+		for(i=0; i<size-1; i++) {
+			if(el.get(i).getId() == e.getId()) break;
+		}
+		el.set(i, e);
+		b.get(i+1).setText(e.getTitle());
+		b.get(i+1).setActionCommand(e.getTitle());
+		revalidate();
+	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		int date;
@@ -243,7 +259,7 @@ class CalendarCell extends JPanel implements ActionListener {
 			for(i=0; i<size-1; i++) {
 				if(el.get(i).getTitle() == cmd) break;
 			}
-			mp.setDetail(date, cmd, el.get(i).getDetail());
+			mp.setDetail(date, cmd, el.get(i).getDetail(), el.get(i).getId());
 		}
 	}
 }
@@ -274,6 +290,7 @@ class DetailPanel extends JPanel implements ActionListener {
 	JTextField yearText, monthText, dateText, titleText;
 	JTextArea detailText;
 	JButton b1, b2;
+	int eventId;
 	DetailPanel(MonthPanel mp) {
 		this.mp = mp;
 		gbl = new GridBagLayout();
@@ -337,12 +354,13 @@ class DetailPanel extends JPanel implements ActionListener {
 		b2.setText("reset");
 		b2.setActionCommand("reset");
 	}
-	public void setDetail(int year, int month, int date, String title, String detail) {
+	public void setDetail(int year, int month, int date, String title, String detail, int eventId) {
 		yearText.setText(Integer.toString(year));
 		monthText.setText(Integer.toString(month));
 		dateText.setText(Integer.toString(date));
 		titleText.setText(title);
 		detailText.setText(detail);
+		this.eventId = eventId;
 		b1.setText("change");
 		b1.setActionCommand("change");
 		b2.setText("delete");
@@ -357,7 +375,7 @@ class DetailPanel extends JPanel implements ActionListener {
 			titleText.setText("");
 			detailText.setText("");
 		} else if(cmd.equals("change")) {
-			
+			mp.changeEvent(Integer.valueOf(yearText.getText()), Integer.valueOf(monthText.getText()), Integer.valueOf(dateText.getText()), titleText.getText(), detailText.getText(), eventId);
 		} else if(cmd.equals("delete")) {
 			
 		} else {

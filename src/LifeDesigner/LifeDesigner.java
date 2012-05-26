@@ -11,7 +11,7 @@ public class LifeDesigner {
 		GUI gui = new GUI(em);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.getContentPane().add(gui);
-		f.setSize(800,600);
+		f.setSize(1200,800);
 		f.setVisible(true);
 	}
 
